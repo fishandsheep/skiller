@@ -75,6 +75,18 @@ body {
     min-width: 40px;
 }
 
+.audio-hint {
+    font-size: 0.8em;
+    color: #999;
+    margin-left: 10px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
 .game-mode-selector {
     display: flex;
     justify-content: center;

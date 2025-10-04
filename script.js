@@ -100,6 +100,7 @@ class SkillGomoku {
         const audioToggle = document.getElementById('audio-toggle');
         const volumeSlider = document.getElementById('volume-slider');
         const volumeDisplay = document.getElementById('volume-display');
+        const audioHint = document.getElementById('audio-hint');
         
         // 设置初始音量
         this.audio.bgMusic.volume = this.audio.volume;
@@ -107,8 +108,8 @@ class SkillGomoku {
             sound.volume = this.audio.volume;
         });
         
-        // 自动播放背景音乐
-        this.playBackgroundMusic();
+        // 尝试自动播放背景音乐
+        this.attemptAutoPlay();
         
         // 音量控制
         volumeSlider.addEventListener('input', (e) => {
@@ -116,6 +117,16 @@ class SkillGomoku {
             this.audio.volume = volume;
             this.updateVolume(volume);
             volumeDisplay.textContent = `${e.target.value}%`;
+            // 如果用户调整音量，说明用户有交互，可以播放音乐
+            if (this.audio.bgMusic.paused) {
+                this.audio.bgMusic.play().then(() => {
+                    if (audioHint) {
+                        audioHint.style.display = 'none';
+                    }
+                }).catch(error => {
+                    console.log('音量调整后播放失败:', error);
+                });
+            }
         });
         
         // 静音控制
@@ -123,13 +134,89 @@ class SkillGomoku {
             this.audio.isMuted = !this.audio.isMuted;
             this.toggleMute();
             audioToggle.textContent = this.audio.isMuted ? '🔇' : '🔊';
+            // 用户点击静音按钮也算交互，可以播放音乐
+            if (this.audio.bgMusic.paused && !this.audio.isMuted) {
+                this.audio.bgMusic.play().then(() => {
+                    if (audioHint) {
+                        audioHint.style.display = 'none';
+                    }
+                }).catch(error => {
+                    console.log('静音按钮调整后播放失败:', error);
+                });
+            }
+        });
+        
+        // 监听任意用户交互事件来启动音乐
+        this.setupUserInteractionListener();
+    }
+    
+    attemptAutoPlay() {
+        const audioHint = document.getElementById('audio-hint');
+        // 尝试多次自动播放
+        const tryPlay = () => {
+            if (this.audio.bgMusic && this.audio.bgMusic.paused) {
+                this.audio.bgMusic.play().then(() => {
+                    console.log('背景音乐自动播放成功');
+                    // 隐藏提示文字
+                    if (audioHint) {
+                        audioHint.style.display = 'none';
+                    }
+                }).catch(error => {
+                    console.log('背景音乐自动播放失败，等待用户交互:', error);
+                });
+            }
+        };
+        
+        // 立即尝试
+        tryPlay();
+        
+        // 延迟再尝试
+        setTimeout(tryPlay, 1000);
+        setTimeout(tryPlay, 2000);
+    }
+    
+    setupUserInteractionListener() {
+        const audioHint = document.getElementById('audio-hint');
+        // 监听各种用户交互事件
+        const interactionEvents = ['click', 'keydown', 'touchstart', 'mousedown', 'scroll'];
+        
+        const startMusicOnInteraction = () => {
+            if (this.audio.bgMusic && this.audio.bgMusic.paused && !this.audio.isMuted) {
+                this.audio.bgMusic.play().then(() => {
+                    console.log('通过用户交互启动背景音乐');
+                    // 隐藏提示文字
+                    if (audioHint) {
+                        audioHint.style.display = 'none';
+                    }
+                }).catch(error => {
+                    console.log('用户交互后播放失败:', error);
+                });
+            }
+        };
+        
+        interactionEvents.forEach(event => {
+            document.addEventListener(event, startMusicOnInteraction, { once: true });
+        });
+        
+        // 特别监听游戏棋盘点击
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.addEventListener('click', startMusicOnInteraction, { once: true });
+        }
+        
+        // 监听技能按钮点击
+        ['skill-feishazoushi', 'skill-jingruzhishui', 'skill-libashanxi'].forEach(skillId => {
+            const btn = document.getElementById(skillId);
+            if (btn) {
+                btn.addEventListener('click', startMusicOnInteraction, { once: true });
+            }
         });
     }
     
     playBackgroundMusic() {
         if (this.audio.bgMusic) {
             this.audio.bgMusic.play().catch(error => {
-                console.log('背景音乐自动播放失败，需要用户交互:', error);
+                console.log('背景音乐播放失败:', error);
             });
         }
     }
