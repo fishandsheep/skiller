@@ -47,6 +47,17 @@ class SkillGomoku {
         // 回合行动系统
         this.turnActionTaken = false; // 当前回合是否已执行行动
         
+        // 音频系统
+        this.audio = {
+            bgMusic: document.getElementById('bg-music'),
+            skillSounds: {
+                feishazoushi: document.getElementById('skill-feishazoushi-sound'),
+                jingruzhishui: document.getElementById('skill-jingruzhishui-sound'),
+                libashanxi: document.getElementById('skill-libashanxi-sound')
+            },
+            isMuted: false,
+            volume: 0.5
+        };
         
         this.init();
     }
@@ -54,6 +65,7 @@ class SkillGomoku {
     init() {
         this.initializeBoard();
         this.setupEventListeners();
+        this.setupAudioControls();
         this.renderBoard();
         this.updateUI();
     }
@@ -82,6 +94,69 @@ class SkillGomoku {
         document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
         document.getElementById(`${mode}-mode`).classList.add('active');
         this.restartGame();
+    }
+    
+    setupAudioControls() {
+        const audioToggle = document.getElementById('audio-toggle');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeDisplay = document.getElementById('volume-display');
+        
+        // 设置初始音量
+        this.audio.bgMusic.volume = this.audio.volume;
+        Object.values(this.audio.skillSounds).forEach(sound => {
+            sound.volume = this.audio.volume;
+        });
+        
+        // 自动播放背景音乐
+        this.playBackgroundMusic();
+        
+        // 音量控制
+        volumeSlider.addEventListener('input', (e) => {
+            const volume = e.target.value / 100;
+            this.audio.volume = volume;
+            this.updateVolume(volume);
+            volumeDisplay.textContent = `${e.target.value}%`;
+        });
+        
+        // 静音控制
+        audioToggle.addEventListener('click', () => {
+            this.audio.isMuted = !this.audio.isMuted;
+            this.toggleMute();
+            audioToggle.textContent = this.audio.isMuted ? '🔇' : '🔊';
+        });
+    }
+    
+    playBackgroundMusic() {
+        if (this.audio.bgMusic) {
+            this.audio.bgMusic.play().catch(error => {
+                console.log('背景音乐自动播放失败，需要用户交互:', error);
+            });
+        }
+    }
+    
+    updateVolume(volume) {
+        this.audio.bgMusic.volume = volume;
+        Object.values(this.audio.skillSounds).forEach(sound => {
+            sound.volume = volume;
+        });
+    }
+    
+    toggleMute() {
+        const muteState = this.audio.isMuted;
+        this.audio.bgMusic.muted = muteState;
+        Object.values(this.audio.skillSounds).forEach(sound => {
+            sound.muted = muteState;
+        });
+    }
+    
+    playSkillSound(skillName) {
+        const sound = this.audio.skillSounds[skillName];
+        if (sound) {
+            sound.currentTime = 0;
+            sound.play().catch(error => {
+                console.log(`技能音效播放失败: ${skillName}`, error);
+            });
+        }
     }
     
     
@@ -300,6 +375,9 @@ class SkillGomoku {
         
         // 标记本回合已使用行动
         this.turnActionTaken = true;
+        
+        // 播放技能音效
+        this.playSkillSound(skillName);
         
         // 执行技能效果
         this.executeSkill(skillName);
