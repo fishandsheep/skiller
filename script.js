@@ -47,9 +47,6 @@ class SkillGomoku {
         // 回合行动系统
         this.turnActionTaken = false; // 当前回合是否已执行行动
         
-        // 音效系统
-        this.audioContext = null;
-        this.soundsEnabled = true;
         
         this.init();
     }
@@ -87,270 +84,16 @@ class SkillGomoku {
         this.restartGame();
     }
     
-    // 音效系统初始化
-    initializeAudio() {
-        try {
-            window.AudioContext = window.AudioContext || window.webkitAudioContext;
-            this.audioContext = new AudioContext();
-        } catch (e) {
-            console.log('Web Audio API not supported');
-            this.soundsEnabled = false;
-        }
-    }
     
-    // 播放音效
-    playSound(type) {
-        if (!this.soundsEnabled || !this.audioContext) return;
-        
-        // 确保音频上下文已启动
-        if (this.audioContext.state === 'suspended') {
-            this.audioContext.resume();
-        }
-        
-        switch(type) {
-            case 'feishazoushi':
-                this.playFeishazoushiSound();
-                break;
-            case 'jingruzhishui':
-                this.playJingruzhishuiSound();
-                break;
-            case 'libashanxi':
-                this.playLibashanxiSound();
-                break;
-            case 'placePiece':
-                this.playPlacePieceSound();
-                break;
-            case 'buttonClick':
-                this.playButtonClickSound();
-                break;
-            case 'skillReady':
-                this.playSkillReadySound();
-                break;
-            case 'victory':
-                this.playVictorySound();
-                break;
-        }
-    }
     
-    // 飞沙走石音效 - 风声和沙粒声
-    playFeishazoushiSound() {
-        const oscillator1 = this.audioContext.createOscillator();
-        const oscillator2 = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-        const filter = this.audioContext.createBiquadFilter();
-        
-        oscillator1.type = 'sawtooth';
-        oscillator1.frequency.setValueAtTime(200, this.audioContext.currentTime);
-        oscillator1.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 1.5);
-        
-        oscillator2.type = 'triangle'; // 使用三角波模拟风沙声
-        oscillator2.frequency.setValueAtTime(3000, this.audioContext.currentTime);
-        oscillator2.frequency.exponentialRampToValueAtTime(1000, this.audioContext.currentTime + 1.5);
-        
-        filter.type = 'highpass';
-        filter.frequency.setValueAtTime(500, this.audioContext.currentTime);
-        
-        gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 1.5);
-        
-        oscillator1.connect(filter);
-        oscillator2.connect(filter);
-        filter.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        oscillator1.start(this.audioContext.currentTime);
-        oscillator2.start(this.audioContext.currentTime);
-        oscillator1.stop(this.audioContext.currentTime + 1.5);
-        oscillator2.stop(this.audioContext.currentTime + 1.5);
-    }
     
-    // 静如止水音效 - 冰晶凝结声
-    playJingruzhishuiSound() {
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-        const filter = this.audioContext.createBiquadFilter();
-        
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(1200, this.audioContext.currentTime + 0.5);
-        oscillator.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 2);
-        
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(1000, this.audioContext.currentTime);
-        filter.Q.setValueAtTime(5, this.audioContext.currentTime);
-        
-        gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.4, this.audioContext.currentTime + 0.1);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 2);
-        
-        oscillator.connect(filter);
-        filter.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        oscillator.start(this.audioContext.currentTime);
-        oscillator.stop(this.audioContext.currentTime + 2);
-        
-        // 添加冰晶破裂声
-        setTimeout(() => {
-            this.playIceCrackSound();
-        }, 1000);
-    }
     
-    // 冰晶破裂声
-    playIceCrackSound() {
-        const bufferSize = this.audioContext.createBuffer(1, this.audioContext.sampleRate * 0.2, this.audioContext.sampleRate);
-        const output = this.audioContext.createBufferSource();
-        const gainNode = this.audioContext.createGain();
-        
-        const data = bufferSize.getChannelData(0);
-        for (let i = 0; i < bufferSize.length; i++) {
-            data[i] = (Math.random() - 0.5) * Math.exp(-i / (bufferSize.length * 0.1));
-        }
-        
-        output.buffer = bufferSize;
-        
-        gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
-        
-        output.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        output.start(this.audioContext.currentTime);
-    }
     
-    // 力拔山兮音效 - 震撼的破坏声
-    playLibashanxiSound() {
-        // 低频震动声
-        const oscillator1 = this.audioContext.createOscillator();
-        const gainNode1 = this.audioContext.createGain();
-        
-        oscillator1.type = 'sine';
-        oscillator1.frequency.setValueAtTime(40, this.audioContext.currentTime);
-        oscillator1.frequency.exponentialRampToValueAtTime(20, this.audioContext.currentTime + 1);
-        
-        gainNode1.gain.setValueAtTime(0.5, this.audioContext.currentTime);
-        gainNode1.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 1);
-        
-        oscillator1.connect(gainNode1);
-        gainNode1.connect(this.audioContext.destination);
-        
-        // 破裂声
-        for (let i = 0; i < 5; i++) {
-            setTimeout(() => {
-                this.playImpactSound(0.3 + Math.random() * 0.2);
-            }, i * 150);
-        }
-        
-        oscillator1.start(this.audioContext.currentTime);
-        oscillator1.stop(this.audioContext.currentTime + 1);
-    }
     
-    // 撞击声
-    playImpactSound(volume = 0.3) {
-        const bufferSize = this.audioContext.createBuffer(1, this.audioContext.sampleRate * 0.1, this.audioContext.sampleRate);
-        const output = this.audioContext.createBufferSource();
-        const gainNode = this.audioContext.createGain();
-        const filter = this.audioContext.createBiquadFilter();
-        
-        const data = bufferSize.getChannelData(0);
-        for (let i = 0; i < bufferSize.length; i++) {
-            data[i] = (Math.random() - 0.5) * Math.exp(-i / (bufferSize.length * 0.05));
-        }
-        
-        output.buffer = bufferSize;
-        
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(200, this.audioContext.currentTime);
-        
-        gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
-        
-        output.connect(filter);
-        filter.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        output.start(this.audioContext.currentTime);
-    }
     
-    // 下棋音效
-    playPlacePieceSound() {
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-        
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.1);
-        
-        gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        oscillator.start(this.audioContext.currentTime);
-        oscillator.stop(this.audioContext.currentTime + 0.1);
-    }
     
-    // 按钮点击音效
-    playButtonClickSound() {
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-        
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(1000, this.audioContext.currentTime);
-        
-        gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.05);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        oscillator.start(this.audioContext.currentTime);
-        oscillator.stop(this.audioContext.currentTime + 0.05);
-    }
     
-    // 技能就绪音效
-    playSkillReadySound() {
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-        
-        oscillator.type = 'triangle';
-        oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(800, this.audioContext.currentTime + 0.2);
-        
-        gainNode.gain.setValueAtTime(0.15, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-        
-        oscillator.start(this.audioContext.currentTime);
-        oscillator.stop(this.audioContext.currentTime + 0.2);
-    }
     
-    // 胜利音效
-    playVictorySound() {
-        const notes = [523, 659, 784, 1047]; // C, E, G, High C
-        
-        notes.forEach((frequency, index) => {
-            setTimeout(() => {
-                const oscillator = this.audioContext.createOscillator();
-                const gainNode = this.audioContext.createGain();
-                
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
-                
-                gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(this.audioContext.destination);
-                
-                oscillator.start(this.audioContext.currentTime);
-                oscillator.stop(this.audioContext.currentTime + 0.5);
-            }, index * 100);
-        });
-    }
     
     renderBoard() {
         const boardElement = document.getElementById('game-board');
@@ -605,8 +348,6 @@ class SkillGomoku {
         const shuffled = opponentPieces.sort(() => Math.random() - 0.5);
         const toRemove = shuffled.slice(0, removeCount);
         
-        // 播放音效
-        this.playSound('feishazoushi');
         
         // 添加特效
         this.showSkillEffect('feishazoushi');
