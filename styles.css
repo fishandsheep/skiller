@@ -1197,7 +1197,60 @@ body {
     }
 }
 
-/* 响应式设计 */
+/* 增强的弹性布局系统 */
+.game-container {
+    container-type: inline-size;
+}
+
+/* 容器查询 */
+@container (max-width: 1100px) {
+    .game-main {
+        grid-template-columns: 1fr 2fr 1fr;
+        gap: 15px;
+    }
+}
+
+@container (max-width: 900px) {
+    .game-main {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .game-info-panel {
+        flex-direction: row;
+        justify-content: space-around;
+        flex-wrap: wrap;
+    }
+
+    .game-center-area {
+        order: 2;
+    }
+
+    .skills-panel {
+        order: 3;
+    }
+}
+
+@container (max-width: 600px) {
+    .game-info-panel {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+/* 响应式设计 - 增强版 */
+@media (max-width: 1200px) {
+    .game-container {
+        max-width: 95vw;
+        padding: 15px;
+    }
+    
+    .game-main {
+        grid-template-columns: 1fr 2.2fr 1.1fr;
+        gap: 18px;
+    }
+}
+
 @media (max-width: 1024px) {
     .game-main {
         grid-template-columns: 1fr;
@@ -1207,6 +1260,17 @@ body {
     .game-info-panel {
         flex-direction: row;
         justify-content: space-around;
+        flex-wrap: wrap;
+    }
+
+    .player-info {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .game-status {
+        flex: 1;
+        min-width: 200px;
     }
 
     .game-center-area {
@@ -1220,6 +1284,8 @@ body {
     .game-board {
         grid-template-columns: repeat(15, 25px);
         grid-template-rows: repeat(15, 25px);
+        max-width: min(100%, 400px);
+        margin: 0 auto;
     }
 
     .cell {
@@ -1258,79 +1324,425 @@ body {
         grid-column: 2;
         grid-row: 2;
     }
+    
+    .skills-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
 }
 
-@media (max-width: 640px) {
+/* 超宽屏适配 */
+@media (min-width: 1400px) {
     .game-container {
-        padding: 8px;
-        width: 98%;
+        max-width: 1400px;
+        padding: 30px;
+    }
+    
+    .game-main {
+        grid-template-columns: 1fr 3fr 1.5fr;
+        gap: 25px;
+    }
+    
+    .game-board {
+        grid-template-columns: repeat(15, 40px);
+        grid-template-rows: repeat(15, 40px);
+    }
+    
+    .cell {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .piece {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .skill-icon {
+        font-size: 2.5em;
+    }
+}
+
+/* 可变字体大小 */
+.game-header h1 {
+    font-size: clamp(1.5em, 4vw, 3em);
+}
+
+.skill-card h4 {
+    font-size: clamp(0.9em, 2vw, 1.1em);
+}
+
+.skill-description {
+    font-size: clamp(0.75em, 1.5vw, 0.95em);
+}
+
+.player-info h3 {
+    font-size: clamp(1em, 2.5vw, 1.3em);
+}
+
+/* 弹性间距 */
+.game-info-panel {
+    gap: clamp(10px, 2vw, 20px);
+}
+
+.game-main {
+    gap: clamp(12px, 2.5vw, 20px);
+}
+
+.skills-container {
+    gap: clamp(8px, 1.5vw, 15px);
+}
+
+/* 弹性内边距 */
+.player-info {
+    padding: clamp(12px, 2vw, 20px);
+}
+
+.skill-card {
+    padding: clamp(8px, 1.5vw, 15px);
+}
+
+.game-status {
+    padding: clamp(15px, 2.5vw, 20px);
+}
+
+/* 流式布局优化 */
+.game-board-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: clamp(5px, 1vw, 10px);
+}
+
+.shichahai-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    .cell {
+        min-width: 22px;
+        min-height: 22px;
+    }
+    
+    .skill-btn {
+        min-height: 44px;
+        font-size: 16px;
+    }
+    
+    .mode-btn {
+        min-height: 44px;
+        padding: 12px 24px;
+    }
+    
+    .audio-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* 移动端优化布局 */
+@media (max-width: 768px) {
+    .game-container {
+        padding: 10px;
+        width: 98vw;
+        max-width: 100%;
+        margin: 5px auto;
     }
 
     .game-header h1 {
-        font-size: 1.6em;
+        font-size: clamp(1.2em, 4vw, 1.4em);
+        margin-bottom: 8px;
     }
 
     .game-main {
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 8px;
+        min-height: 0;
     }
 
+    /* 游戏信息面板 - 极度紧凑 */
     .game-info-panel {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .game-board {
-        grid-template-columns: repeat(15, 18px);
-        grid-template-rows: repeat(15, 18px);
-        padding: 3px;
-    }
-
-    .cell {
-        width: 18px;
-        height: 18px;
-    }
-
-    .piece {
-        width: 14px;
-        height: 14px;
-    }
-
-    .shichahai-container h3 {
-        font-size: 1.2em;
-    }
-
-    .shichahai-sea {
-        height: 70px;
-        border-radius: 12px;
-    }
-
-    .sea-piece {
-        width: 16px;
-        height: 16px;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: nowrap;
     }
 
     .player-info {
-        padding: 12px;
+        flex: 1;
+        padding: 8px;
+        min-width: 0;
     }
 
-    .skills-container {
-        gap: 8px;
+    .player-info h3 {
+        font-size: clamp(0.7em, 2vw, 0.8em);
+        margin-bottom: 4px;
     }
 
-    .skill-card {
+    .piece-indicator {
+        width: 20px;
+        height: 20px;
+        margin-bottom: 6px;
+    }
+
+    .energy-label {
+        font-size: 0.65em;
+    }
+
+    .energy-bar {
+        height: 4px;
+        margin-bottom: 2px;
+    }
+
+    .energy-count {
+        font-size: 0.65em;
+    }
+
+    /* 游戏状态 - 超小 */
+    .game-status {
+        flex: 1.2;
+        padding: 8px;
+        text-align: center;
+        min-width: 0;
+    }
+
+    .current-turn,
+    .round-count,
+    .action-status {
+        font-size: clamp(0.65em, 2vw, 0.75em);
+        margin-bottom: 4px;
+        line-height: 1.2;
+    }
+
+    /* 棋盘区域 - 突出显示 */
+    .game-center-area {
+        flex: 1;
+        min-height: 0;
+    }
+
+    .game-board {
+        grid-template-columns: repeat(15, clamp(18px, 4.5vw, 22px));
+        grid-template-rows: repeat(15, clamp(18px, 4.5vw, 22px));
+        padding: 4px;
+        max-width: min(85vw, 400px);
+        margin: 0 auto;
+        aspect-ratio: 1;
+        width: 100%;
+    }
+
+    .cell {
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 1;
+    }
+
+    .piece {
+        width: clamp(14px, 3.5vw, 18px);
+        height: clamp(14px, 3.5vw, 18px);
+    }
+
+    /* 什刹海 - 缩小 */
+    .shichahai-container {
+        margin-top: 4px;
+    }
+
+    .shichahai-container h3 {
+        font-size: clamp(0.8em, 2.5vw, 1em);
+        margin-bottom: 4px;
+    }
+
+    .shichahai-sea {
+        height: clamp(50px, 12vw, 60px);
+        border-radius: 8px;
+    }
+
+    .sea-piece {
+        width: clamp(12px, 3vw, 14px);
+        height: clamp(12px, 3vw, 14px);
+    }
+
+    /* 技能面板 - 紧凑布局 */
+    .skills-panel {
         padding: 8px;
     }
 
+    .skills-panel h3 {
+        font-size: clamp(0.8em, 2.5vw, 1em);
+        margin-bottom: 6px;
+    }
+
+    .skills-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+
+    .skill-card {
+        padding: 6px 4px;
+        text-align: center;
+    }
+
     .skill-icon {
-        font-size: 1.5em;
+        font-size: clamp(1.2em, 3vw, 1.4em);
+        margin-bottom: 2px;
     }
 
     .skill-card h4 {
-        font-size: 0.9em;
+        font-size: clamp(0.65em, 2vw, 0.75em);
+        margin-bottom: 2px;
+        line-height: 1.1;
     }
 
     .skill-description {
-        font-size: 0.8em;
+        display: none; /* 移动端隐藏描述 */
+    }
+
+    .skill-cost,
+    .skill-cooldown {
+        font-size: 0.6em;
+        margin-bottom: 2px;
+    }
+
+    .skill-btn {
+        padding: 4px 8px;
+        font-size: clamp(0.6em, 2vw, 0.7em);
+        min-height: 32px;
+        margin-top: 4px;
+    }
+
+    /* 音频控制 - 紧凑 */
+    .audio-controls {
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .audio-btn {
+        font-size: 1.2em;
+        padding: 4px;
+    }
+
+    .volume-slider {
+        width: 60px;
+    }
+
+    .volume-display {
+        font-size: 0.7em;
+        min-width: 30px;
+    }
+
+    .audio-hint {
+        font-size: 0.65em;
+        margin-left: 6px;
+    }
+
+    /* 模式选择 */
+    .game-mode-selector {
+        gap: 6px;
+    }
+
+    .mode-btn {
+        padding: 6px 12px;
+        font-size: 0.75em;
+        min-height: 32px;
+    }
+}
+
+/* 更小的移动设备 */
+@media (max-width: 480px) {
+    .game-container {
+        padding: 6px;
+    }
+
+    .game-header h1 {
+        font-size: clamp(1em, 3.5vw, 1.2em);
+    }
+
+    .game-main {
+        gap: 6px;
+    }
+
+    .game-info-panel {
+        gap: 6px;
+    }
+
+    .player-info {
+        padding: 6px;
+    }
+
+    .game-board {
+        grid-template-columns: repeat(15, clamp(16px, 4vw, 18px));
+        grid-template-rows: repeat(15, clamp(16px, 4vw, 18px));
+        padding: 3px;
+        max-width: 90vw;
+    }
+
+    .piece {
+        width: clamp(12px, 3vw, 14px);
+        height: clamp(12px, 3vw, 14px);
+    }
+
+    .skills-container {
+        gap: 4px;
+    }
+
+    .skill-card {
+        padding: 4px 2px;
+    }
+
+    .skill-icon {
+        font-size: clamp(1em, 2.5vw, 1.2em);
+    }
+
+    .shichahai-sea {
+        height: clamp(40px, 10vw, 50px);
+    }
+
+    .sea-piece {
+        width: clamp(10px, 2.5vw, 12px);
+        height: clamp(10px, 2.5vw, 12px);
+    }
+}
+
+/* 极小屏幕支持 */
+@media (max-width: 320px) {
+    .game-board {
+        grid-template-columns: repeat(15, 14px);
+        grid-template-rows: repeat(15, 14px);
+        padding: 2px;
+    }
+    
+    .piece {
+        width: 10px;
+        height: 10px;
+    }
+    
+    .game-info-panel {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .skills-container {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+}
+
+/* 极小屏幕支持 */
+@media (max-width: 320px) {
+    .game-board {
+        grid-template-columns: repeat(15, 14px);
+        grid-template-rows: repeat(15, 14px);
+    }
+    
+    .piece {
+        width: 10px;
+        height: 10px;
+    }
+    
+    .skill-description {
+        display: none;
     }
 }
